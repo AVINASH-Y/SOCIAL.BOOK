@@ -1,5 +1,4 @@
-// backend/controllers/resumeController.js
-const Resume = require('../models/resume');
+const Resume = require('../models/Resume');
 
 const createResume = async (req, res) => {
   try {
@@ -11,4 +10,13 @@ const createResume = async (req, res) => {
   }
 };
 
-module.exports = { createResume };
+const getResume = async (req, res) => {
+  try {
+    const resume = await Resume.findOne();
+    res.status(200).json(resume);
+  } catch (error) {
+    res.status(500).json({ error: 'Unable to fetch resume data' });
+  }
+};
+
+module.exports = { createResume, getResume };
