@@ -38,7 +38,7 @@ const Header = () => {
         const data = await res.json();
         console.log(data);
 
-        if (data.status === 201) {
+        if (data.status == 201) {
             console.log("use logout");
             localStorage.removeItem("usersdatatoken");
             setLoginData(false)
@@ -60,12 +60,12 @@ const Header = () => {
         <>
             <header>
                 <nav>
-                <p>         </p>
-                <NavLink to="/" className='heading-width'><h1>SOCIALBOOK</h1></NavLink>
+                    
+                <NavLink to="/"><h1>HP Cloud</h1></NavLink>
                     <div className="avtar">
                         {
                             logindata.ValidUserOne ? <Avatar style={{ background: "salmon", fontWeight: "bold", textTransform: "capitalize" }} onClick={handleClick}>{logindata.ValidUserOne.fname[0].toUpperCase()}</Avatar> :
-                                <Avatar style={{background:"white",color:"black"}} onClick={handleClick} />
+                                <Avatar style={{ background: "blue" }} onClick={handleClick} />
                         }
 
                     </div>

@@ -1,16 +1,17 @@
-// external dependencies
 const express = require("express");
-const bcrypt = require("bcryptjs");
+const router = new express.Router();
+const userdb = require("../models/userSchema");
+var bcrypt = require("bcryptjs");
+const authenticate = require("../middleware/authenticate");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 
-// internal dependencies
-const userdb = require("../models/userSchema");
-const authenticate = require("../middleware/authenticate");
-const { registerValidationSchema } = require("../validator/auth");
-
-// internal variables
 const keysecret = process.env.SECRET_KEY
+
+
+
+// email config
+
 const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
@@ -19,20 +20,15 @@ const transporter = nodemailer.createTransport({
 	}
 })
 
-// setting up the router
-const router = new express.Router();
-
 
 // for user registration
+
 router.post("/register", async (req, res) => {
 
-	// fetching the parameters sent by user
-	const { fname, email, password } = req.body;
+	const { fname, email, password, cpassword } = req.body;
 
-	const { error } = registerValidationSchema.validate(req.body);
-	if (error) {
-		res.status(422).send({ status: "error", details: error.details[0].message })
-		return
+	if (!fname || !email || !password || !cpassword) {
+		res.status(422).json({ error: "fill all the details" })
 	}
 
 	try {
@@ -40,30 +36,57 @@ router.post("/register", async (req, res) => {
 		const preuser = await userdb.findOne({ email: email });
 
 		if (preuser) {
-			res.status(422).json({ status: "error", details: "This Email Already Exists" })
+			res.status(422).json({ error: "This Email is Already Exist" })
+		} else if (password !== cpassword) {
+			res.status(422).json({ error: "Password and Confirm Password Not Match" })
 		} else {
-
-			// TODO: try sending an email, if success do below stuff, else, quit
-
-			// TODO: here password hasing
-			let hashedPassword = password
-
 			const finalUser = new userdb({
-				fname, email, password: hashedPassword
+				fname, email, password, cpassword
 			});
+
+			// here password hasing
 
 			const storeData = await finalUser.save();
 
 			// console.log(storeData);
-			res.status(200).json({ status: "success", details: "User created successfully." })
+			res.status(201).json({ status: 201, storeData })
 		}
 
 	} catch (error) {
 		res.status(422).json(error);
-		console.log("catch block error",error);
+		console.log("catch block error");
 	}
 
 });
+
+
+
+router.get("/verify-account/:id/:token", async (req, res) => {
+	const { id, token } = req.params;
+
+	try {
+			const user = await userdb.findById(id);
+			if (!user || user.isVerified) {
+					res.status(401).json({ status: 401, message: "Invalid verification link" });
+					return;
+			}
+
+			const verifyToken = jwt.verify(token, keysecret);
+			if (verifyToken.email === user.email) {
+					user.isVerified = true;
+					await user.save();
+					res.status(200).json({ status: 200, message: "Account verified successfully" });
+			} else {
+					res.status(401).json({ status: 401, message: "Invalid verification link" });
+			}
+
+	} catch (error) {
+			res.status(401).json({ status: 401, error });
+	}
+});
+
+
+
 
 // user Login
 router.post("/login", async (req, res) => {
@@ -111,6 +134,7 @@ router.post("/login", async (req, res) => {
 	}
 });
 
+
 // user valid
 router.get("/validuser", authenticate, async (req, res) => {
 	try {
@@ -121,7 +145,9 @@ router.get("/validuser", authenticate, async (req, res) => {
 	}
 });
 
+
 // user logout
+
 router.get("/logout", authenticate, async (req, res) => {
 	try {
 		req.rootUser.tokens = req.rootUser.tokens.filter((curelem) => {
@@ -142,51 +168,52 @@ router.get("/logout", authenticate, async (req, res) => {
 
 
 // send email Link For reset Password
-router.post("/sendpasswordlink", async (req, res) => {
-	console.log(req.body)
+router.post("/sendpasswordlink",async(req,res)=>{
+    console.log(req.body)
 
-	const { email } = req.body;
+    const {email} = req.body;
 
-	if (!email) {
-		res.status(401).json({ status: 401, message: "Enter Your Email" })
-	}
+    if(!email){
+        res.status(401).json({status:401,message:"Enter Your Email"})
+    }
 
-	try {
-		const userfind = await userdb.findOne({ email: email });
+    try {
+        const userfind = await userdb.findOne({email:email});
 
-		// token generate for reset password
-		const token = jwt.sign({ _id: userfind._id }, keysecret, {
-			expiresIn: "900s"
-		});
+        // token generate for reset password
+        const token = jwt.sign({_id:userfind._id},keysecret,{
+            expiresIn:"6000s"
+        });
 
-		const setusertoken = await userdb.findByIdAndUpdate({ _id: userfind._id }, { verifytoken: token }, { new: true });
+        const setusertoken = await userdb.findByIdAndUpdate({_id:userfind._id},{verifytoken:token},{new:true});
 
 
-		if (setusertoken) {
-			const mailOptions = {
-				from: process.env.EMAIL,
-				to: email,
-				subject: "ASSIGNMENT - RESET PASSWORD ",
-				text: `Dear User, \n\nRemember that If you don’t use this link within 15 minutes , it will expire.\n\nLink to change your password - http://localhost:3000/forgotpassword/${userfind.id}/${setusertoken.verifytoken} \n\nThanks,\nAdmin`
-			}
+        if(setusertoken){
+            const mailOptions = {
+                from:process.env.EMAIL,
+                to:email,
+                subject:"Sending Email For password Reset",
+                text:`This Link Valid For 2 MINUTES http://localhost:3000/forgotpassword/${userfind.id}/${setusertoken.verifytoken}`
+            }
 
-			transporter.sendMail(mailOptions, (error, info) => {
-				if (error) {
-					console.log("error", error);
-					res.status(401).json({ status: 401, message: "email not send" })
-				} else {
-					console.log("Email sent", info.response);
-					res.status(201).json({ status: 201, message: "Email sent successfully!" })
-				}
-			})
+            transporter.sendMail(mailOptions,(error,info)=>{
+                if(error){
+                    console.log("error",error);
+                    res.status(401).json({status:401,message:"email not send"})
+                }else{
+                    console.log("Email sent",info.response);
+                    res.status(201).json({status:201,message:"Email sent Succsfully"})
+                }
+            })
 
-		}
+        }
 
-	} catch (error) {
-		res.status(401).json({ status: 401, message: "invalid user" })
-	}
+    } catch (error) {
+        res.status(401).json({status:401,message:"invalid user"})
+    }
 
 });
+
 
 
 // verify user for forgot password time
@@ -210,6 +237,7 @@ router.get("/forgotpassword/:id/:token", async (req, res) => {
 		res.status(401).json({ status: 401, error })
 	}
 });
+
 
 
 // change password
@@ -240,17 +268,4 @@ router.post("/:id/:token", async (req, res) => {
 	}
 })
 
-
-
 module.exports = router;
-
-
-
-// 2 way connection
-// 12345 ---> e#@$hagsjd
-// e#@$hagsjd -->  12345
-
-// hashing compare
-// 1 way connection
-// 1234 ->> e#@$hagsjd
-// 1234->> (e#@$hagsjd,e#@$hagsjd)=> true

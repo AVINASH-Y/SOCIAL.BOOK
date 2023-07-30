@@ -1,0 +1,70 @@
+/* client/src/resume-theme.css */
+
+/* Body styles */
+/* body {
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 0;
+} */
+
+
+/* Container for the resume details */
+.resume-container {
+  width: 794px; /* A4 size width */
+  margin: 20px auto;
+  padding: 40px;
+  background-color: #f9f9f9;
+  color: #333;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  line-height: 1.6;
+}
+
+/* Heading for the resume */
+.resume-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+/* Individual resume sections */
+.resume-section {
+  margin-bottom: 20px;
+} 
+
+/* Heading for each section */
+.resume-section h3 {
+  font-size: 24px;
+  font-weight: bold;
+  border-bottom: 2px solid #333;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+/* Content for each section */
+.resume-section p {
+  margin-bottom: 10px;
+}
+
+/* Back to Form button */
+.resume-container button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.resume-container button:hover {
+  background-color: #0056b3;
+}
+
+/* Adjustments for mobile devices */
+@media (max-width: 768px) {
+  .resume-container {
+    width: 100%;
+  }
+}
