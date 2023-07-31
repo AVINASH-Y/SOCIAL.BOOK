@@ -1,9 +1,6 @@
-// client/src/components/Resume.js
-
 import React from 'react';
-// import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'
 import './resume.css'; // Import the custom CSS for the resume page
-import { useNavigate } from 'react-router-dom';
 
 
 const Resume = ({ data }) => {
@@ -40,18 +37,63 @@ const Resume = ({ data }) => {
 				</div>
 
 				<div className="resume-section">
-					<strong>Education:</strong>
-					<p>{data.education}</p>
+					<strong>Education</strong>
+					{data.education.map((edu, index) => (
+						<div key={index}>
+							<p>
+								<strong>Institution:</strong> {edu.institution}
+							</p>
+							<p>
+								<strong>Degree:</strong> {edu.degree}
+							</p>
+							<p>
+								<strong>Duration:</strong> {edu.duration}
+							</p>
+						</div>
+					))}
+				</div>
+
+				{/* Experience */}
+				<div className="resume-section">
+					<strong>Experience</strong>
+					{data.experience.map((exp, index) => (
+						<div key={index}>
+							<p>
+								<strong>Company:</strong> {exp.company}
+							</p>
+							<p>
+								<strong>Position:</strong> {exp.position}
+							</p>
+							<p>
+								<strong>Duration:</strong> {exp.duration}
+							</p>
+							<p>
+								{/* <strong>working:</strong>  */}
+								{exp.working}
+							</p>
+						</div>
+					))}
 				</div>
 
 				<div className="resume-section">
-					<strong>Experience:</strong>
-					<p>{data.experience}</p>
-				</div>
-
-				<div className="resume-section">
-					<strong>Projects:</strong>
-					<p>{data.projects}</p>
+					<strong>Projects</strong>
+					{data.projects.map((proj, index) => (
+						<div key={index}>
+							<p>
+								<strong>Name:</strong> {proj.name}
+							</p>
+							<p>
+								<strong>Institute/Company Name:</strong> {proj.entity}
+							</p>
+							<p>
+								<strong>Duration:</strong> {proj.duration}
+							</p>
+							<p>
+								{/* <strong>working:</strong>  */}
+								{proj.about}
+							</p>
+						</div>
+					))}
 				</div>
 
 				<div className="resume-section">
@@ -61,7 +103,20 @@ const Resume = ({ data }) => {
 
 				<div className="resume-section">
 					<strong>Awards and Achievements:</strong>
-					<p>{data.awards}</p>
+					{data.awards.map((awd, index) => (
+						<div key={index}>
+							<p>
+								<strong>Name:</strong> {awd.name}
+							</p>
+							<p>
+								<strong>Date:</strong> {awd.date}
+							</p>
+							<p>
+								{/* <strong>working:</strong>  */}
+								{awd.about}
+							</p>
+						</div>
+					))}
 				</div>
 
 				<div className="resume-section">
