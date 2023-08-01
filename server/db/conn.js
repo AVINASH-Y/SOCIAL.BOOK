@@ -1,10 +1,21 @@
 const mongoose = require("mongoose");
 
-const DB = process.env.DATABASE
+// Function to connect to the database
+const connectToDB = () => {
+  const DB = process.env.DATABASE
 
-mongoose.connect(DB,{
-    useUnifiedTopology: true,
-    useNewUrlParser: true
-}).then(()=> console.log("DataBase Connected")).catch((errr)=>{
-    console.log(errr);
-})
+  return mongoose
+    .connect(DB, {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+    })
+    .then(() => {
+      console.log("DataBase Connected");
+    })
+    .catch((error) => {
+      console.log("Error connecting to database:", error.message);
+      throw error;
+    });
+};
+
+module.exports = connectToDB;

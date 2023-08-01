@@ -1,11 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const app = express();
-require("./db/conn");
 const router = require("./routes/router");
 const cors = require("cors");
 const cookiParser = require("cookie-parser")
-const port = 8010;
 
 const resumeRoutes = require('./routes/resumeRoutes');
 const path = require('path'); // Import the path module
@@ -57,6 +55,17 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(port,()=>{
-    console.log(`server start at port no : ${port}`);
-})
+// Import the database connection function
+const connectToDB = require("./db/conn");
+
+// Attempt to connect to the database
+connectToDB()
+  .then(() => {
+    const port = 8010; 
+    app.listen(port, () => {
+      console.log(`server start at port no : ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Server cannot start. Database connection failed.");
+  });
