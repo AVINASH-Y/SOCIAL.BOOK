@@ -1,7 +1,7 @@
 // client/src/components/Form.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom'
-import './index.css';
+import './Form.css';
 
 const Form = ({ formData, handleChange, handleSubmit }) => {
   const navigate = useNavigate();
