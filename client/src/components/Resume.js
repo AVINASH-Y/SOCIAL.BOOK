@@ -1,3 +1,4 @@
+// components/Resume.js 
 import React from 'react';
 import { useNavigate } from 'react-router-dom'
 import './resume.css'; // Import the custom CSS for the resume page
@@ -45,6 +46,9 @@ const Resume = ({ data }) => {
 							</p>
 							<p>
 								<strong>Degree:</strong> {edu.degree}
+							</p>
+							<p>
+								<strong>Course:</strong> {edu.course}
 							</p>
 							<p>
 								<strong>Duration:</strong> {edu.duration}
